@@ -1,3 +1,0 @@
-#!/bin/bash
-
-./darknet detector train cfg/data.data cfg/cfg.cfg
