@@ -1,0 +1,26 @@
+<annotation verified="no">
+  <folder>Testfail</folder>
+  <filename>A661J3</filename>
+  <path>/data/dataset/Car/plate_detect_train/Testfail/A661J3.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>1280</width>
+    <height>720</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>plate</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <Difficult>0</Difficult>
+    <bndbox>
+      <xmin>696</xmin>
+      <ymin>299</ymin>
+      <xmax>853</xmax>
+      <ymax>363</ymax>
+    </bndbox>
+  </object>
+</annotation>

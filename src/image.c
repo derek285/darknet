@@ -10,6 +10,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include <stdlib.h>
+
 int windows = 0;
 
 float colors[6][3] = { {1,0,1}, {0,0,1},{0,1,1},{0,1,0},{1,1,0},{1,0,0} };
@@ -225,18 +227,11 @@ image **load_alphabet()
     int i, j;
     const int nsize = 8;
     image **alphabets = calloc(nsize, sizeof(image));
-    for(j = 0; j < nsize; ++j){
-        alphabets[j] = calloc(128, sizeof(image));
-        for(i = 32; i < 127; ++i){
-            char buff[256];
-            sprintf(buff, "data/labels/%d_%d.png", i, j);
-            alphabets[j][i] = load_image_color(buff, 0, 0);
-        }
-    }
+
     return alphabets;
 }
 
-void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes)
+void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, char *input)
 {
     int i,j;
 
@@ -244,7 +239,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
         char labelstr[4096] = {0};
         int class = -1;
         for(j = 0; j < classes; ++j){
-            if (dets[i].prob[j] > thresh){
+            if (dets[i].prob[j] > 0.9){
                 if (class < 0) {
                     strcat(labelstr, names[j]);
                     class = j;
@@ -285,11 +280,23 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             int top   = (b.y-b.h/2.)*im.h;
             int bot   = (b.y+b.h/2.)*im.h;
 
-            if(left < 0) left = 0;
-            if(right > im.w-1) right = im.w-1;
-            if(top < 0) top = 0;
-            if(bot > im.h-1) bot = im.h-1;
+            // if(left < 0) left = 0;
+            // if(right > im.w-1) right = im.w-1;
+            // if(top < 0) top = 0;
+            // if(bot > im.h-1) bot = im.h-1;
 
+            int marginlr = 30;
+            int marginud = 20;
+            left =  (left < marginlr) ? 0 : (left-marginlr);
+            right = (right > im.w-marginlr) ? (im.w-1) : (right+marginlr);
+            top = (top < marginud) ? 0 :(top -marginud);
+            bot = (bot > im.h-marginud) ? (im.h-1) : (bot+marginud);
+
+            image sized2 = crop_image(im, left, top, (right-left), (bot-top));
+            // show_image(sized2, "20202020", 0);
+            // printf("name saved: %s \n", strcat(input, (unsigned char *)a(i)) );
+            save_image(sized2, input);
+        
             draw_box_width(im, left, top, right, bot, width, red, green, blue);
             if (alphabet) {
                 image label = get_label(alphabet, labelstr, (im.h*.03));

@@ -1,0 +1,4 @@
+classes= 1
+train = train.txt
+names = carplate_yolov3/names.list
+backup = backup
