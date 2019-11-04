@@ -224,7 +224,7 @@ void draw_bbox(image a, box bbox, int w, float r, float g, float b)
 
 image **load_alphabet()
 {
-    int i, j;
+    //int i, j;
     const int nsize = 8;
     image **alphabets = calloc(nsize, sizeof(image));
 

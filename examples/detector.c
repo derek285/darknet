@@ -577,8 +577,6 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     char buff[256];
     char *input = buff;
     float nms=.45;
-
-    char *pltName;
     
     FILE *fp;
     int len;
