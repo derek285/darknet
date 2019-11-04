@@ -231,13 +231,42 @@ image **load_alphabet()
     return alphabets;
 }
 
-void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, char *input)
+void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, char *filename)
 {
+    // ***************************
+    //if demo video, filename=empty
+    // ***************************
+
+
+    // ************************
+    // process .png file, modify if necessary
+    // ************************
+
+    // char *output = filename;
+    // int haha = 0;
+    // for (haha = strlen(filename)-1; haha>=0; haha--){
+    //     if((filename[haha]!='p')&&(filename[haha]!='n')&&(filename[haha]!='g')&&(filename[haha]!='.')){
+    //         break;
+    //     }
+    //     else{
+    //         output[haha] = '\0';
+    //     }
+    // }
+    // output = strcat(filename, ".txt");
+    // // printf("filename: %s \n", output);
+    // FILE *fp;
+    // if ((fp = fopen(output, "w+")) == NULL){
+    //     printf("Create file fail !!!\n");
+    //     return;
+    // }
+
     int i,j;
 
     for(i = 0; i < num; ++i){
         char labelstr[4096] = {0};
         int class = -1;
+        char* clsname;
+        float clsprob;
         for(j = 0; j < classes; ++j){
             if (dets[i].prob[j] > 0.9){
                 if (class < 0) {
@@ -247,12 +276,15 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
                     strcat(labelstr, ", ");
                     strcat(labelstr, names[j]);
                 }
-                printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
+                // printf("%s,%.0f%%,", names[j], dets[i].prob[j]*100);
+                // fprintf(fp, "%s,%.0f%%,", names[j], dets[i].prob[j]*100);
+                clsname = names[j];
+                clsprob = dets[i].prob[j]*100;
             }
         }
         if(class >= 0){
             int width = im.h * .006;
-
+            // fprintf(fp, "%s,%.0f%%,", clsname, clsprob);
             /*
                if(0){
                width = pow(prob, 1./2.)*10+1;
@@ -285,19 +317,31 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             // if(top < 0) top = 0;
             // if(bot > im.h-1) bot = im.h-1;
 
-            int marginlr = 30;
-            int marginud = 20;
+
+            // ************************
+            // if necessary, control the bbox margin
+            // ************************
+            int marginlr = 1;
+            int marginud = 1;
             left =  (left < marginlr) ? 0 : (left-marginlr);
             right = (right > im.w-marginlr) ? (im.w-1) : (right+marginlr);
             top = (top < marginud) ? 0 :(top -marginud);
             bot = (bot > im.h-marginud) ? (im.h-1) : (bot+marginud);
 
-            image sized2 = crop_image(im, left, top, (right-left), (bot-top));
+            // ************************
+            // crop the obj and save img
+            // ************************
+
+            // image sized2 = crop_image(im, left, top, (right-left), (bot-top));
             // show_image(sized2, "20202020", 0);
             // printf("name saved: %s \n", strcat(input, (unsigned char *)a(i)) );
-            save_image(sized2, input);
+            // save_image(sized2, filename);
         
             draw_box_width(im, left, top, right, bot, width, red, green, blue);
+            
+            printf("%d %d %d %d\n", left, top, right, bot);
+            // fprintf(fp, "%d,%d,%d,%d\n",left, top, right, bot);
+
             if (alphabet) {
                 image label = get_label(alphabet, labelstr, (im.h*.03));
                 draw_label(im, top + width, left, label, rgb);
@@ -314,6 +358,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             }
         }
     }
+    // fclose(fp);
 }
 
 void transpose_image(image im)
