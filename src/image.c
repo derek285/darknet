@@ -224,14 +224,21 @@ void draw_bbox(image a, box bbox, int w, float r, float g, float b)
 
 image **load_alphabet()
 {
-    //int i, j;
+    int i, j;
     const int nsize = 8;
     image **alphabets = calloc(nsize, sizeof(image));
-
+    for(j = 0; j < nsize; ++j){
+        alphabets[j] = calloc(128, sizeof(image));
+        for(i = 32; i < 127; ++i){
+            char buff[256];
+            sprintf(buff, "data/labels/%d_%d.png", i, j);
+            alphabets[j][i] = load_image_color(buff, 0, 0);
+        }
+    }
     return alphabets;
 }
 
-void draw_detections(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, char *filename)
+void draw_detections(char* filename, image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes)
 {
     // ***************************
     //if demo video, filename=empty
@@ -268,7 +275,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
         char* clsname;
         float clsprob;
         for(j = 0; j < classes; ++j){
-            if (dets[i].prob[j] > 0.9){
+            if (dets[i].prob[j] > thresh){
                 if (class < 0) {
                     strcat(labelstr, names[j]);
                     class = j;
@@ -284,6 +291,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
         }
         if(class >= 0){
             int width = im.h * .006;
+            printf("%s,%.0f%%,", clsname, clsprob);
             // fprintf(fp, "%s,%.0f%%,", clsname, clsprob);
             /*
                if(0){
@@ -312,21 +320,21 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             int top   = (b.y-b.h/2.)*im.h;
             int bot   = (b.y+b.h/2.)*im.h;
 
-            // if(left < 0) left = 0;
-            // if(right > im.w-1) right = im.w-1;
-            // if(top < 0) top = 0;
-            // if(bot > im.h-1) bot = im.h-1;
+            if(left < 0) left = 0;
+            if(right > im.w-1) right = im.w-1;
+            if(top < 0) top = 0;
+            if(bot > im.h-1) bot = im.h-1;
 
 
             // ************************
             // if necessary, control the bbox margin
             // ************************
-            int marginlr = 1;
-            int marginud = 1;
-            left =  (left < marginlr) ? 0 : (left-marginlr);
-            right = (right > im.w-marginlr) ? (im.w-1) : (right+marginlr);
-            top = (top < marginud) ? 0 :(top -marginud);
-            bot = (bot > im.h-marginud) ? (im.h-1) : (bot+marginud);
+            // int marginlr = 1;
+            // int marginud = 1;
+            // left =  (left < marginlr) ? 0 : (left-marginlr);
+            // right = (right > im.w-marginlr) ? (im.w-1) : (right+marginlr);
+            // top = (top < marginud) ? 0 :(top -marginud);
+            // bot = (bot > im.h-marginud) ? (im.h-1) : (bot+marginud);
 
             // ************************
             // crop the obj and save img
@@ -339,7 +347,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
         
             draw_box_width(im, left, top, right, bot, width, red, green, blue);
             
-            printf("%d %d %d %d\n", left, top, right, bot);
+            printf("%d,%d,%d,%d\n", left, top, right, bot);
             // fprintf(fp, "%d,%d,%d,%d\n",left, top, right, bot);
 
             if (alphabet) {

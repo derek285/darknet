@@ -129,8 +129,9 @@ void *detect_in_thread(void *ptr)
     printf("\nFPS:%.1f\n",fps);
     printf("Objects:\n\n");
     image display = buff[(buff_index+2) % 3];
-    char *input;
-    draw_detections(display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes, input);
+
+    char* input;
+    draw_detections(input, display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes);
     free_detections(dets, nboxes);
 
     demo_index = (demo_index + 1)%demo_frame;
@@ -185,7 +186,8 @@ void *detect_loop(void *ptr)
     }
 }
 
-void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, int classes, int delay, char *prefix, int avg_frames, float hier, int w, int h, int frames, int fullscreen)
+void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, 
+        int classes, int delay, char *prefix, int avg_frames, float hier, int w, int h, int frames, int fullscreen)
 {
     //demo_frame = avg_frames;
     image **alphabet = load_alphabet();
@@ -342,7 +344,9 @@ pthread_join(detect_thread, 0);
 }
 */
 #else
-void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, int classes, int delay, char *prefix, int avg, float hier, int w, int h, int frames, int fullscreen)
+void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, 
+        const char *filename, char **names, int classes, int delay, char *prefix, 
+        int avg, float hier, int w, int h, int frames, int fullscreen)
 {
     fprintf(stderr, "Demo needs OpenCV for webcam images.\n");
 }

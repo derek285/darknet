@@ -593,9 +593,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         printf("input image %s ", input);
 
         image sized = letterbox_image(im, net->w, net->h);
-        
         printf(" im.w: %d, im.h: %d \n", im.w, im.h);
-        
+        //image sized = resize_image(im, net->w, net->h);
+        //image sized2 = resize_max(im, net->w);
+        //image sized = crop_image(sized2, -((net->w - sized2.w)/2), -((net->h - sized2.h)/2), net->w, net->h);
+        //resize_network(net, sized.w, sized.h);
         layer l = net->layers[net->n-1];
 
 
@@ -608,13 +610,14 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         //printf("%d\n", nboxes);
         //if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
-        draw_detections(im, dets, nboxes, thresh, names, alphabet, 2, input);
+        draw_detections(input, im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
         if(outfile){
             save_image(im, outfile);
         }
         else{
-            // save_image(im, input);
+            //save_image(im, input);
+	        save_image(im, "predicit");
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
             show_image(im, "predictions", 0);
@@ -625,6 +628,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         free_image(sized);
         if (filename) break;
     }
+    fclose(fp);
 }
 
 void run_detector(int argc, char **argv)
@@ -681,10 +685,11 @@ void run_detector(int argc, char **argv)
     else if(0==strcmp(argv[2], "recall")) validate_detector_recall(cfg, weights);
     else if(0==strcmp(argv[2], "demo")) {
         list *options = read_data_cfg(datacfg);
-        int classes = option_find_int(options, "classes", 2);
+        int classes = option_find_int(options, "classes", 20);
         char *name_list = option_find_str(options, "names", "data/names.list");
         char **names = get_labels(name_list);
-        demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, avg, hier_thresh, width, height, fps, fullscreen);
+        demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, 
+             avg, hier_thresh, width, height, fps, fullscreen);
     }
     //else if(0==strcmp(argv[2], "extract")) extract_detector(datacfg, cfg, weights, cam_index, filename, class, thresh, frame_skip);
     //else if(0==strcmp(argv[2], "censor")) censor_detector(datacfg, cfg, weights, cam_index, filename, class, thresh, frame_skip);
